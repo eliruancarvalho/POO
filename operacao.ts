@@ -1,3 +1,6 @@
+// ELI RUAN
+// MYLENA DUARTE
+
 import Conta from "./conta";
 
 export default class Operacao{
@@ -47,5 +50,6 @@ export default class Operacao{
     }
 
 }
+
 
 
