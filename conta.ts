@@ -1,3 +1,6 @@
+// ELI RUAN
+// MYLENA DUARTE
+
 import Cliente from "./cliente";
 import Operacao from "./operacao";
 
@@ -99,4 +102,5 @@ export default class Conta {
   public set dataAbertura(dataAbertura: string) {
     this._dataAbertura = dataAbertura;
   }
+
 }
