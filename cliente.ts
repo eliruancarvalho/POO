@@ -1,3 +1,5 @@
+// ELI RUAN
+// MYLENA DUARTE
 import Conta from "./Conta";
 
 export default class Cliente {
@@ -66,4 +68,5 @@ export default class Cliente {
   public set contas(contas: Conta[]) {
     this._contas = contas;
   }
+
 }
