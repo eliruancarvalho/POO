@@ -25,9 +25,8 @@ export class Acao {
 
 export abstract class Personagem {
   public historico: Acao[] = [];
-
   public ataquesBemSucedidos = 0;
-  vidaMaxima: number;
+  public vidaMaxima: number;
 
   constructor(
     public id: number,
@@ -42,7 +41,7 @@ export abstract class Personagem {
     return this.vida > 0;
   }
 
-  
+  // assinatura aceita atacante opcional
   receberDano(valor: number, atacante?: Personagem): void {
       if (!this.estaVivo()) {
           throw new Error(`${this.nome} está morto e não pode receber dano.`);
@@ -164,7 +163,7 @@ export class Arqueiro extends Personagem {
   }
 }
 
-// CURANDEIRO (SubClasse Extra)
+// CURANDEIRO
 
 export class Curandeiro extends Personagem {
 
@@ -191,6 +190,49 @@ export class Curandeiro extends Personagem {
         return acao;
     }
 }
+
+// CIDADAO
+
+export class Cidadao extends Personagem {
+
+  atacar(): Acao {
+    throw new Error('Cidadão não realiza ataques.');
+  }
+
+  override receberDano(valor: number, atacante?: Personagem): void {
+    this.vida = 0;
+  }
+
+}
+
+
+// CLASSES NÃO CONCLUÍDAS
+
+// LETALIS
+
+/*export class Letalis extends Personagem {
+    constructor(id: number, nome: string, vida: number, ataque: number, dano: number) {
+    super(id, nome, vida, ataque);
+  }
+
+  atacar(alvo: Personagem): Acao {
+    alvo.receberDano(dano, this);
+    let desc = 'Ataque letal! Alvo morreu!';
+    let acao = new Acao(Date.now(), this, alvo, desc, dano, new Date());
+    this.registrarAcao(acao);
+
+    return acao;
+  }
+
+}
+
+// EXAUSTO
+
+export class Exausto extends Personagem {
+
+}
+
+*/
 
 
 
@@ -280,11 +322,14 @@ let batalha = new Batalha();
 function salvar(): void {
   fs.writeFileSync('personagens.json', JSON.stringify(
     batalha.personagens.map(p => {
-      // listar propriedades específicas de cada tipo
+      // serializar propriedades específicas de cada tipo
       if (p instanceof Guerreiro) {
         return { id: p.id, tipo: 'Guerreiro', nome: p.nome, vida: p.vida, ataque: p.ataque, defesa: p.defesa };
       } else if (p instanceof Arqueiro) {
         return { id: p.id, tipo: 'Arqueiro', nome: p.nome, vida: p.vida, ataque: p.ataque, ataqueMultiplo: p.ataqueMultiplo };
+      
+      } else if (p instanceof Cidadao) {
+        return { id: p.id, tipo: 'Cidadao', nome: p.nome, vida: p.vida, ataque: p.ataque};
       } else {
         return { id: p.id, tipo: 'Mago', nome: p.nome, vida: p.vida, ataque: p.ataque };
       }
@@ -310,10 +355,11 @@ carregar();
 
 let rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-// === funções do menu (todas retornam void e chamam menu() no fim) ===
+
+// funções do menu (todas retornam void e chamam menu() no fim)
 
 function criarPersonagem(): void {
-  rl.question('Tipo (1-Guerreiro, 2-Mago, 3-Arqueiro): ', tipo => {
+  rl.question('Tipo (1-Guerreiro, 2-Mago, 3-Arqueiro, 4-Cidadão): ', tipo => {
     rl.question('Nome: ', nome => {
       rl.question('Ataque (número): ', atkStr => {
         let atk = Number(atkStr);
@@ -361,7 +407,16 @@ function criarPersonagem(): void {
             }
             return menu();
           });
-        } else {
+        } else if (tipo === '4') {
+          try {
+              batalha.adicionarPersonagem(new Cidadao(id, nome, 100, atk=0));
+              console.log('Cidadão criado!');
+            } catch (e: any) {
+              console.log(`Erro: ${e.message}`);
+            }
+            return menu();
+          
+         } else {
           console.log('Tipo inválido');
           return menu();
         }
@@ -376,7 +431,7 @@ function listarPersonagens(): void {
     console.log('Nenhum personagem cadastrado.');
   } else {
     for (let p of batalha.personagens) {
-      let tipo = p instanceof Guerreiro ? 'Guerreiro' : p instanceof Mago ? 'Mago' : 'Arqueiro';
+      let tipo = p instanceof Guerreiro ? 'Guerreiro' : p instanceof Mago ? 'Mago' : p instanceof Arqueiro ? 'Arqueiro': 'Cidadão';
       console.log(`${p.id} - ${p.nome} | Tipo: ${tipo} | Vida: ${p.vida} | Ataque: ${p.ataque} | Ataques bem-sucedidos: ${p.ataquesBemSucedidos}`);
     }
   }
@@ -404,7 +459,6 @@ function iniciarAtaque() {
     });
 }
 
-
 function listarAcoes(): void {
   console.log('\n=== Ações ===');
   if (batalha.acoes.length === 0) {
@@ -428,7 +482,6 @@ function chamarCurandeiroMenu(): void {
         menu();
     });
 }
-
 
 function vencedor(): void {
   let v = batalha.verificarVencedor();
