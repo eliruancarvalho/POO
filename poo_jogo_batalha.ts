@@ -164,7 +164,7 @@ export class Arqueiro extends Personagem {
   }
 }
 
-// CURANDEIRO
+// CURANDEIRO (SubClasse Extra)
 
 export class Curandeiro extends Personagem {
 
