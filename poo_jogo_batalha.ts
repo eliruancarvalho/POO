@@ -42,7 +42,7 @@ export abstract class Personagem {
     return this.vida > 0;
   }
 
-  // assinatura aceita atacante opcional
+  
   receberDano(valor: number, atacante?: Personagem): void {
       if (!this.estaVivo()) {
           throw new Error(`${this.nome} está morto e não pode receber dano.`);
@@ -280,7 +280,7 @@ let batalha = new Batalha();
 function salvar(): void {
   fs.writeFileSync('personagens.json', JSON.stringify(
     batalha.personagens.map(p => {
-      // serializar propriedades específicas de cada tipo
+      // listar propriedades específicas de cada tipo
       if (p instanceof Guerreiro) {
         return { id: p.id, tipo: 'Guerreiro', nome: p.nome, vida: p.vida, ataque: p.ataque, defesa: p.defesa };
       } else if (p instanceof Arqueiro) {
